@@ -1,61 +1,57 @@
-const citySelect = document.getElementById("city");
-const forecastDiv = document.getElementById("forecast");
+const citySelect = document.getElementById('citySelect');
+const forecastDiv = document.getElementById('forecast');
+const getWeatherBtn = document.getElementById('getWeatherBtn');
 
-citySelect.addEventListener("change", () => {
-  const [lat, lon] = citySelect.value.split(",");
-  getWeatherForecast(lat, lon);
-});
+// Hide the button (auto fetch mode)
+getWeatherBtn.style.display = "none";
 
-window.addEventListener("load", () => {
-  const [lat, lon] = citySelect.value.split(",");
-  getWeatherForecast(lat, lon);
-});
+citySelect.addEventListener('change', getWeather);
 
-async function getWeatherForecast(lat, lon) {
-  const url = `https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civil&output=json`;
+async function getWeather() {
+  forecastDiv.innerHTML = '';
+
+  if (!citySelect.value) {
+    forecastDiv.innerHTML = '<p>Please select a city.</p>';
+    return;
+  }
+
+  const [lat, lon] = citySelect.value.split(',');
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto`;
 
   try {
     const response = await fetch(url);
     const data = await response.json();
 
-    forecastDiv.innerHTML = "";
-    const series = data.dataseries.slice(0, 7);
+    const days = data.daily.time;
+    const tempsMax = data.daily.temperature_2m_max;
+    const tempsMin = data.daily.temperature_2m_min;
+    const codes = data.daily.weathercode;
 
-    series.forEach((day, index) => {
-      const date = new Date();
-      date.setDate(date.getDate() + index);
+    for (let i = 0; i < days.length; i++) {
+      const div = document.createElement('div');
+      div.classList.add('day');
 
-      const temp = `${day.temp2m}°C`;
-      const weather = day.weather.toLowerCase();
-      const iconSrc = getWeatherIcon(weather);
-
-      const card = document.createElement("div");
-      card.className = "day";
-      card.innerHTML = `
-        <h3>${date.toDateString()}</h3>
-        <img src="${iconSrc}" alt="${weather}" class="weather-icon" />
-        <p><b>${formatWeatherName(weather)}</b></p>
-        <p><b>Temp:</b> ${temp}</p>
+      const icon = getWeatherIcon(codes[i]);
+      div.innerHTML = `
+        <h3>${new Date(days[i]).toDateString().slice(0, 10)}</h3>
+        <img src="${icon}" alt="weather">
+        <p>Max: ${tempsMax[i]}°C</p>
+        <p>Min: ${tempsMin[i]}°C</p>
       `;
-
-      forecastDiv.appendChild(card);
-    });
+      forecastDiv.appendChild(div);
+    }
   } catch (error) {
-    console.error("Error fetching weather data:", error);
-    forecastDiv.innerHTML = "<p>Unable to load forecast.</p>";
+    console.error(error);
+    forecastDiv.innerHTML = '<p>Failed to fetch weather data.</p>';
   }
 }
 
-function getWeatherIcon(weather) {
-  if (weather.includes("clear")) return "https://cdn-icons-png.flaticon.com/512/869/869869.png";
-  if (weather.includes("cloud")) return "https://cdn-icons-png.flaticon.com/512/414/414825.png";
-  if (weather.includes("rain")) return "https://cdn-icons-png.flaticon.com/512/3313/3313888.png";
-  if (weather.includes("snow")) return "https://cdn-icons-png.flaticon.com/512/642/642102.png";
-  if (weather.includes("thunder")) return "https://cdn-icons-png.flaticon.com/512/1779/1779940.png";
-  if (weather.includes("shower")) return "https://cdn-icons-png.flaticon.com/512/1163/1163657.png";
-  return "https://cdn-icons-png.flaticon.com/512/1163/1163624.png";
-}
-
-function formatWeatherName(name) {
-  return name.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+function getWeatherIcon(code) {
+  if ([0].includes(code)) return "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // clear
+  if ([1, 2, 3].includes(code)) return "https://cdn-icons-png.flaticon.com/512/414/414825.png"; // partly cloudy
+  if ([45, 48].includes(code)) return "https://cdn-icons-png.flaticon.com/512/1146/1146869.png"; // fog
+  if ([51, 53, 55, 56, 57, 61, 63, 65].includes(code)) return "https://cdn-icons-png.flaticon.com/512/1163/1163624.png"; // rain
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "https://cdn-icons-png.flaticon.com/512/642/642102.png"; // snow
+  if ([80, 81, 82].includes(code)) return "https://cdn-icons-png.flaticon.com/512/3093/3093390.png"; // showers
+  return "https://cdn-icons-png.flaticon.com/512/869/869869.png"; // default sunny
 }
