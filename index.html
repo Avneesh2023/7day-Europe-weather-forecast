@@ -2,27 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>European City 7-Day Weather Forecast</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>7-Day Weather Forecast for Europe</h1>
-
-  <div class="search-box">
-    <label for="city">Select a City:</label>
-    <select id="city">
-      <option value="48.85,2.35">Paris</option>
-      <option value="41.90,12.49">Rome</option>
-      <option value="52.52,13.40">Berlin</option>
-      <option value="51.51,-0.13">London</option>
-      <option value="40.42,-3.70">Madrid</option>
-      <option value="59.33,18.06">Stockholm</option>
-      <option value="37.98,23.73">Athens</option>
+  <div class="container">
+    <h1>7-Day Weather Forecast for Europe</h1>
+    <select id="citySelect">
+      <option value="">--Select a City--</option>
+      <option value="52.52,13.41">Berlin, Germany</option>
+      <option value="48.85,2.35">Paris, France</option>
+      <option value="41.90,12.50">Rome, Italy</option>
+      <option value="51.51,-0.13">London, United Kingdom</option>
+      <option value="40.42,-3.70">Madrid, Spain</option>
+      <option value="50.08,14.43">Prague, Czech Republic</option>
+      <option value="47.50,19.04">Budapest, Hungary</option>
+      <option value="59.33,18.07">Stockholm, Sweden</option>
+      <option value="60.17,24.94">Helsinki, Finland</option>
+      <option value="48.21,16.37">Vienna, Austria</option>
+      <option value="37.98,23.72">Athens, Greece</option>
+      <option value="55.68,12.57">Copenhagen, Denmark</option>
     </select>
+    <button id="getWeatherBtn">Get Forecast</button>
+    <div id="forecast"></div>
   </div>
-
-  <div id="forecast"></div>
-
   <script src="script.js"></script>
 </body>
 </html>
